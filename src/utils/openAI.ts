@@ -3,20 +3,49 @@ import type { ParsedEvent, ReconnectInterval } from 'eventsource-parser'
 import type { ChatMessage } from '@/types'
 
 const model = import.meta.env.OPENAI_API_MODEL || 'gpt-3.5-turbo'
+const apiType = import.meta.env.API_TYPE || 'open_ai'
+const apiVersion = import.meta.env.API_VERSION || ''
 
-export const generatePayload = (apiKey: string, messages: ChatMessage[]): RequestInit & { dispatcher?: any } => ({
-  headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${apiKey}`,
-  },
-  method: 'POST',
-  body: JSON.stringify({
-    model,
-    messages,
-    temperature: 0.6,
-    stream: true,
-  }),
-})
+export const generatePayload = (apiKey: string, messages: ChatMessage[]): RequestInit & { dispatcher?: any } => {
+  if (apiType === 'azure') {
+    return {
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': `${apiKey}`,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        messages,
+        temperature: 0.6,
+        stream: true,
+        max_tokens: 800,
+      }),
+    }
+  } else {
+    return {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      method: 'POST',
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature: 0.6,
+        stream: true,
+      }),
+    }
+  }
+}
+
+export const gennerateURL = (baseURL: string): string => {
+  if (apiType === 'azure') {
+    // https://mytestgpt001.openai.azure.com/openai/deployments/Gpt35/chat/completions?api-version=2023-03-15-preview
+    return `${baseURL}/openai/deployments/Gpt35/chat/completions?api-version=${apiVersion}`
+  } else {
+    return `${baseURL}/v1/chat/completions`
+  }
+}
 
 export const parseOpenAIStream = (rawResponse: Response) => {
   const encoder = new TextEncoder()

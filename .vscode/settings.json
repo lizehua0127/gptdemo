@@ -9,5 +9,11 @@
       "astro", // Enable .astro
       "typescript", // Enable .ts
       "typescriptreact" // Enable .tsx
-  ]
+  ],
+  "appService.zipIgnorePattern": [
+    "node_modules{,/**}",
+    ".vscode{,/**}"
+  ],
+  "appService.defaultWebAppToDeploy": "/subscriptions/e075db2a-a66a-49e2-9b48-c79fbd23a02b/resourceGroups/gpt/providers/Microsoft.Web/sites/gptli",
+  "appService.deploySubpath": "."
 }
